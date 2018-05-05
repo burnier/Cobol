@@ -1,0 +1,272 @@
+ 000001       ********************************************************  
+ 000002       *     I D E N T I F I C A T I O N   D I V I S I O N    *  
+ 000003       ********************************************************  
+ 000004                                                                 
+ 000005        IDENTIFICATION DIVISION.                                 
+ 000006        PROGRAM-ID.    PGMODELO.                                 
+ 000007        AUTHOR.        DANIEL.                                   
+ 000008        DATE-WRITTEN.  17/03/04.                                 
+ 000009                                                                 
+ 000010       ********************************************************  
+ 000011       *           E N V I R O N M E N T   D I V I S I O N    *  
+ 000012       ********************************************************  
+ 000013                                                                 
+ 000014        ENVIRONMENT DIVISION.                                    
+ 000015                                                                 
+ 000016        CONFIGURATION SECTION.                                   
+ 000017        SPECIAL-NAMES.                                           
+ 000018            DECIMAL-POINT IS COMMA.                              
+ 000019                                                                 
+ 000020        INPUT-OUTPUT SECTION.                                    
+ 000021                                                                 
+ 000022        FILE-CONTROL.                                            
+ 000023                                                                 
+ 000024            SELECT I-MEDIAS-FILE    ASSIGN TO ENTRADA.           
+ 000025                                                                 
+ 000026            SELECT O-APROVADOS-FILE ASSIGN TO SAIDA.             
+ 000027                                                                 
+ 000028       ********************************************************  
+ 000029       *                 D A T A   D I V I S I O N            *  
+ 000030       ********************************************************  
+ 000031                                                                 
+ 000032        DATA DIVISION.                                           
+ 000033                                                                     
+ 000034        FILE SECTION.                                                
+ 000035                                                                     
+ 000036        FD  I-MEDIAS-FILE                                            
+ 000037            RECORDING MODE IS F                                      
+ 000038            RECORD CONTAINS  40 CHARACTERS                           
+ 000039            BLOCK CONTAINS    0 RECORDS                              
+ 000040            LABEL RECORDS   ARE STANDARD                             
+ 000041            DATA RECORD ENTRADA-REC.                                 
+ 000042                                                                     
+ 000043        01  ENTRADA-REC.                                             
+ 000044            05 ENT-NUMERO               PIC 9(05).                   
+ 000045            05 ENT-NOME                 PIC X(20).                   
+ 000046            05 ENT-CLASSE               PIC 9(02).                   
+ 000047            05 ENT-MEDIA                PIC 99V9.                    
+ 000048            05 ENT-MATERIA              PIC 9(02).                   
+ 000049            05 ENT-DISPONIVEL           PIC X(08).                   
+ 000050                                                                     
+ 000051        FD  O-APROVADOS-FILE                                         
+ 000052            RECORDING MODE IS F                                      
+ 000053            RECORD CONTAINS 132 CHARACTERS                           
+ 000054            BLOCK CONTAINS    0 RECORDS                              
+ 000055            LABEL RECORDS   ARE STANDARD                             
+ 000056            DATA RECORD REG-SAIDA.                                   
+ 000057                                                                     
+ 000058        01  REG-SAIDA                  PIC X(132).                   
+ 000059                                                                     
+ 000060       ********************************************************      
+ 000061       *              WORKING-STORAGE SECTION                 *      
+ 000062       ********************************************************      
+ 000063        WORKING-STORAGE SECTION.                                     
+ 000064                                                                     
+ 000065        01  FILLER                     PIC X(40) VALUE               
+ 000066            '* PGMODELO WORKING STORAGE BEGINS HERE *'.              
+ 000067                                                                       
+ 000068       ********************************************************        
+ 000069       *                 ACUMULADORES                         *        
+ 000070       ********************************************************        
+ 000071                                                                       
+ 000072        01  WS-ACUMULADORES.                                           
+ 000073            05 A-TOT-LIDOS             PIC 9(09)    COMP-3 VALUE ZEROS.
+ 000074       *    05 A-TOT-GRAV              PIC 9(09)    COMP-3 VALUE ZEROS.
+ 000075       *    05 A-TOT-DEL               PIC 9(09)    COMP-3 VALUE ZEROS.
+ 000076       *    05 A-TOT-ATU               PIC 9(09)    COMP-3 VALUE ZEROS.
+ 000077       *    05 A-TOT-LINHA             PIC 9(09)    COMP-3 VALUE 99.   
+ 000078                                                                       
+ 000079        01 WS-AUXILIARES.                                              
+ 000080           05 AUX-ANTERIOR             PIC 9(02)    VALUE 99.          
+ 000081           05 WS-HORA                  PIC 9(06).                      
+ 000082                                                                       
+ 000083       ********************************************************        
+ 000084       *                VARIAVEIS DE TRABALHO                 *        
+ 000085       ********************************************************        
+ 000086                                                                       
+ 000087        01  WS-ARQUIVO                 PIC X(03)    VALUE SPACES.      
+ 000088            88 WS-FIM-LEITURA                       VALUE 'FIM'.       
+ 000089                                                                       
+ 000090        01  CAB-01.                                                    
+ 000091            05 FILLER                  PIC X(09) VALUE SPACES.         
+ 000092            05 FILLER                  PIC X(42) VALUE                 
+ 000093               'RELACAO DE ALUNOS APROVADOS NO ANO DE 1990'.           
+ 000094            05 FILLER                  PIC X(81) VALUE SPACES.         
+ 000095                                                                       
+ 000096        01  CAB-02.                                                    
+ 000097            05 FILLER                  PIC X(14) VALUE SPACES.         
+ 000098            05 FILLER                  PIC X(12) VALUE                 
+ 000099               'DISCIPLINA: '.                                         
+ 000100            05 CAB-02-DESC-MATERIA     PIC X(21) VALUE SPACES.         
+ 000101            05 FILLER                  PIC X(85) VALUE SPACES.
+ 000102                                                                         
+ 000103        01  CAB-03.                                                      
+ 000104            05 FILLER                  PIC X(05) VALUE SPACES.           
+ 000105            05 FILLER                  PIC X(55) VALUE                   
+ 000106               ' NUMERO            NOME                MEDIA     CLASSE'.
+ 000107            05 FILLER                  PIC X(72).                        
+ 000108                                                                         
+ 000109       *****************************TABELA*******************************
+ 000110        01  TABELAS.                                                     
+ 000111            05 T-MATERIAS.                                               
+ 000112               10 FILLER                PIC X(21) VALUE                  
+ 000113                  'MATEMATICA FINANCEIRA'.                               
+ 000114               10 FILLER                PIC X(21) VALUE 'EPB'.           
+ 000115               10 FILLER                PIC X(21) VALUE 'PORTUGUES'.     
+ 000116               10 FILLER                PIC X(21) VALUE                  
+ 000117                  'ANALISE DE SISTEMAS'.                                 
+ 000118               10 FILLER                PIC X(21) VALUE                  
+ 000119                  'INTRODUCAO A P.D.'.                                   
+ 000120               10 FILLER                PIC X(21) VALUE                  
+ 000121                  'MATERIA DESCONHECIDA'.                                
+ 000122            05 T-MATERIAS-RED REDEFINES T-MATERIAS                       
+ 000123                          OCCURS 6 TIMES.                                
+ 000124               10 T-MAT                   PIC X(21).                     
+ 000125       ***************************************************************** 
+ 000126                                                                         
+ 000127        01  LINHA-DETALHE.                                               
+ 000128            05 FILLER                  PIC X(06) VALUE SPACES.           
+ 000129            05 DET-NUMERO              PIC X(05).                        
+ 000130            05 FILLER                  PIC X(06) VALUE SPACES.           
+ 000131            05 DET-NOME                PIC X(20).                        
+ 000132            05 FILLER                  PIC X(07) VALUE SPACES.           
+ 000133            05 DET-MEDIA               PIC 99,9.                         
+ 000134            05 FILLER                  PIC X(08) VALUE SPACES.           
+ 000135            05 DET-CLASSE              PIC X(02).                        
+ 000136            05 FILLER                  PIC X(42) VALUE SPACES.             
+ 000137                                                                  
+ 000138        01  FILLER                     PIC X(40) VALUE            
+ 000139            '* PGMODELO WORKING STORAGE ENDS HERE *'.             
+ 000140                                                                  
+ 000141       ********************************************************   
+ 000142       *                   PROCEDURE DIVISION                 *   
+ 000143       ********************************************************   
+ 000144                                                                  
+ 000145        PROCEDURE DIVISION.                                       
+ 000146                                                                  
+ 000147       ********************************************************   
+ 000148       *        ESTRUTURA PRINCIPAL DO PROGRAMA               *   
+ 000149       ********************************************************   
+ 000150                                                                  
+ 000151            PERFORM P100-INICIALIZACAO THRU P100-EXIT.            
+ 000152                                                                  
+ 000153            PERFORM P300-PROCESSA      THRU P300-EXIT             
+ 000154                    UNTIL WS-FIM-LEITURA.                         
+ 000155                                                                  
+ 000156            PERFORM P900-FINALIZACAO   THRU P900-EXIT.            
+ 000157                                                                  
+ 000158            GOBACK.                                               
+ 000159                                                                  
+ 000160       ********************************************************   
+ 000161       *                    INICIALIZACAO                     *   
+ 000162       ********************************************************   
+ 000163                                                                  
+ 000164        P100-INICIALIZACAO.                                       
+ 000165                                                                  
+ 000166            OPEN INPUT  I-MEDIAS-FILE                             
+ 000167                 OUTPUT  O-APROVADOS-FILE.                        
+ 000168                                                                  
+ 000169            ACCEPT WS-HORA FROM TIME.                             
+ 000170            DISPLAY ' '.                                          
+ 000171            DISPLAY '***** INICIO DO PGM MS9PTGM '.                      
+ 000172            DISPLAY '***** HORA DE INICIO PGM: ' WS-HORA.             
+ 000173                                                                      
+ 000174            PERFORM P400-LEITURA              THRU P400-EXIT.         
+ 000175                                                                      
+ 000176        P100-EXIT.                                                    
+ 000177            EXIT.                                                     
+ 000178                                                                      
+ 000179       ********************************************************       
+ 000180       *                     PROCESSAMENTO                    *       
+ 000181       ********************************************************       
+ 000182                                                                      
+ 000183        P300-PROCESSA.                                                
+ 000184                                                                      
+ 000185            ADD 1                             TO A-TOT-LIDOS.         
+ 000186                                                                      
+ 000187                                                                      
+ 000188            IF AUX-ANTERIOR NOT EQUAL ENT-MATERIA                     
+ 000189               PERFORM P600-OBTEM-MATERIA       THRU P600-EXIT        
+ 000190               PERFORM P500-IMPRIME-CABECALHO   THRU P500-EXIT        
+ 000191               MOVE ZEROS                       TO   A-TOT-LIDOS      
+ 000192               MOVE ENT-MATERIA                 TO AUX-ANTERIOR       
+ 000193            ELSE                                                      
+ 000194              IF A-TOT-LIDOS > 30                                     
+ 000195                 PERFORM P500-IMPRIME-CABECALHO THRU P500-EXIT        
+ 000196                 MOVE ZEROS                     TO A-TOT-LIDOS.       
+ 000197                                                                      
+ 000198            MOVE ENT-NUMERO                   TO   DET-NUMERO.        
+ 000199            MOVE ENT-NOME                     TO   DET-NOME.          
+ 000200            MOVE ENT-MEDIA                    TO   DET-MEDIA.         
+ 000201            MOVE ENT-CLASSE                   TO   DET-CLASSE.        
+ 000202                                                                      
+ 000203            WRITE REG-SAIDA                   FROM LINHA-DETALHE.     
+ 000204                                                                      
+ 000205            ADD 1                             TO   A-TOT-LIDOS.       
+ 000206                                                                      
+ 000207                                                                  
+ 000208            PERFORM P400-LEITURA              THRU P400-EXIT.     
+ 000209                                                                  
+ 000210        P300-EXIT.                                                
+ 000211            EXIT.                                                 
+ 000212                                                                  
+ 000213       ********************************************************   
+ 000214       *              LEITURA ARQUIVO ENTRADA                 *   
+ 000215       ********************************************************   
+ 000216                                                                  
+ 000217        P400-LEITURA.                                             
+ 000218                                                                  
+ 000219            READ I-MEDIAS-FILE                                    
+ 000220                AT END MOVE 'FIM'  TO WS-ARQUIVO                  
+ 000221                       GO          TO P400-EXIT.                  
+ 000222                                                                  
+ 000223            ADD 1                  TO A-TOT-LIDOS.                
+ 000224                                                                  
+ 000225        P400-EXIT.                                                
+ 000226            EXIT.                                                 
+ 000227                                                                  
+ 000228                                                                  
+ 000229       ********************************************************   
+ 000230       *              IMPRIME CABECALHO                       *   
+ 000231       ********************************************************   
+ 000232                                                                  
+ 000233        P500-IMPRIME-CABECALHO.                                   
+ 000234                                                                  
+ 000235            WRITE REG-SAIDA FROM CAB-01  AFTER PAGE.              
+ 000236            WRITE REG-SAIDA FROM CAB-02  AFTER 1.                 
+ 000237            WRITE REG-SAIDA FROM CAB-03  AFTER 2.                 
+ 000238            MOVE SPACES     TO   REG-SAIDA.                       
+ 000239            WRITE REG-SAIDA.                                      
+ 000240                                                                  
+ 000241        P500-EXIT.         
+ 000242            EXIT.                                                        
+ 000243                                                                         
+ 000244        P600-OBTEM-MATERIA.                                              
+ 000245            IF ENT-MATERIA GREATER 5 OR ENT-MATERIA LESS 1               
+ 000246               MOVE T-MAT (6) TO CAB-02-DESC-MATERIA                     
+ 000247            ELSE                                                         
+ 000248               MOVE T-MAT (ENT-MATERIA) TO CAB-02-DESC-MATERIA.          
+ 000249                                                                         
+ 000250        P600-EXIT.                                                       
+ 000251            EXIT.                                                        
+ 000252                                                                         
+ 000253       ********************************************************          
+ 000254       *                   FINALIZACAO                        *          
+ 000255       ********************************************************          
+ 000256                                                                         
+ 000257        P900-FINALIZACAO.                                                
+ 000258                                                                         
+ 000259            CLOSE I-MEDIAS-FILE                                          
+ 000260                  O-APROVADOS-FILE.                                      
+ 000261                                                                         
+ 000262            ACCEPT WS-HORA FROM TIME.                                    
+ 000263                                                                         
+ 000264            DISPLAY ' '.                                                 
+ 000265            DISPLAY '***** ESTATISTICA DO PROGRAMA *****'.               
+ 000266            DISPLAY '***** TOTAL REGISTROS LIDOS       : ' A-TOT-LIDOS.  
+ 000267            DISPLAY '***** TERMINO NORMAL DO PGM PGMODELO '.             
+ 000268            DISPLAY '***** HORA DE TERMINO PGM : ' WS-HORA.              
+ 000269                                                                         
+ 000270        P900-EXIT.                                                       
+ 000271            EXIT.                                                        
+ 000272                                                                                                                
